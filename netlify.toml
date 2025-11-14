@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# 本地使用 `netlify dev` 时的默认设置（可选）
+[dev]
+  command = "npm run dev"
+  port = 5173
+  targetPort = 5173
+
+# 让前端路由在 Netlify 上正常工作（SPA 回退到 index.html）
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+

@@ -57,6 +57,22 @@ npm run build
 
 构建产物会输出到 `dist/` 目录，可直接部署到任意静态站点（如 Vercel、Netlify、GitHub Pages 或自建 Nginx）。
 
+## 部署到 Netlify
+
+仓库根目录已经添加了 `netlify.toml`，主要配置：
+
+- `[build]`：使用 `npm run build` 构建，发布目录为 `dist`。
+- `[[redirects]]`：将所有路径回退到 `/index.html`，保证前端路由在刷新时也能正常访问。
+
+部署步骤（任选其一）：
+
+- Git 集成：在 Netlify 选择本仓库，构建命令填 `npm run build`，Publish directory 填 `dist`（会自动读 `netlify.toml`）。
+- 本地 CLI：安装 `netlify-cli` 后，在仓库根目录运行：
+
+  ```bash
+  netlify deploy --build
+  ```
+
 ## 设计与主题
 
 - 颜色体系基于 OKLCH，自定义在 `src/style.css` 中的 CSS 变量。
