@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watchEffect, onMounted } from 'vue'
 import { siteConfig, projectGroups } from './config/projects'
+import Logo from './assets/logo.png'
 
 const THEME_KEY = 'flysheep-theme'
 
@@ -103,7 +104,7 @@ const projectCountLabel = computed(() => {
     <div class="page-inner">
       <header class="page-header">
         <div class="avatar">
-          <span>S</span>
+          <img :src="Logo" alt="Sheep logo" class="avatar-logo" />
         </div>
         <div class="title-block">
           <h1 class="title">
@@ -330,14 +331,18 @@ const projectCountLabel = computed(() => {
   width: 40px;
   height: 40px;
   border-radius: 999px;
-  background-color: var(--primary);
+  background-color: var(--card);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary-foreground);
-  font-weight: 700;
-  font-size: 18px;
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.avatar-logo {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
 }
 
 .title-block {
@@ -612,24 +617,26 @@ const projectCountLabel = computed(() => {
   padding: 2px 8px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background-color: var(--muted);
+  background-color: transparent;
   color: var(--muted-foreground);
 }
 
 .status-pill[data-status='online'] {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-  border-color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+  color: var(--primary);
+  border-color: color-mix(in oklch, var(--primary) 35%, var(--border));
 }
 
 .status-pill[data-status='wip'] {
-  background-color: var(--accent);
-  color: var(--accent-foreground);
+  background-color: color-mix(in oklch, var(--accent) 10%, transparent);
+  color: color-mix(in oklch, var(--accent-foreground) 80%, var(--foreground));
+  border-color: color-mix(in oklch, var(--accent) 35%, var(--border));
 }
 
 .status-pill[data-status='archived'] {
-  background-color: var(--secondary);
-  color: var(--secondary-foreground);
+  background-color: transparent;
+  color: var(--muted-foreground);
+  border-style: dashed;
 }
 
 .project-description {
@@ -739,4 +746,3 @@ const projectCountLabel = computed(() => {
   }
 }
 </style>
-
