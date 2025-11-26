@@ -97,6 +97,16 @@ export const projectGroups = [
         highlight: false,
       },
       {
+        id: 'tools-9',
+        name: 'Sync GitLab Locale (Tauri v2)',
+        description: '使用Tauri v2 重构的海外舱单语言包同步的跨平台小应用。',
+        techStack: ['Tauri', 'Vue'],
+        repoUrl: 'http://git.hgj.net/taoxiang.tao/sync-locale-app_by_tauri-v2',
+        demoUrl: 'http://git.hgj.net/taoxiang.tao/sync-locale-app_by_tauri-v2/tree/master/release',
+        status: 'online', // online | wip | archived
+        highlight: false,
+      },
+      {
         id: 'tools-6',
         name: 'Sync Locale App',
         description: '海外舱单语言包同步的跨平台小应用，方便开发和测试快速同步语言包。',
