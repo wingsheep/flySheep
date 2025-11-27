@@ -115,40 +115,40 @@ const projectCountLabel = computed(() => {
           </p>
         </div>
         <div class="header-right">
-          <button
-            type="button"
-            class="theme-toggle"
-            :aria-label="theme === 'dark' ? '切换到浅色主题' : '切换到深色主题'"
-            @click="toggleTheme"
-          >
-            <span class="theme-toggle-track">
-              <span
-                class="theme-toggle-thumb"
-                :class="{ 'theme-toggle-thumb--dark': theme === 'dark' }"
-              />
-            </span>
-          </button>
-
           <div class="header-links" v-if="siteConfig.links">
             <a
               v-if="siteConfig.links.github"
               :href="siteConfig.links.github"
               target="_blank"
               rel="noreferrer"
-              class="header-link"
+              class="header-link header-icon"
+              aria-label="GitHub"
             >
-              GitHub
+              <i class="ri-github-line" aria-hidden="true"></i>
             </a>
             <a
               v-if="siteConfig.links.blog"
               :href="siteConfig.links.blog"
               target="_blank"
               rel="noreferrer"
-              class="header-link"
+              class="header-link header-icon"
+              aria-label="Blog"
             >
-              Blog
+              <i class="ri-article-line" aria-hidden="true"></i>
             </a>
           </div>
+
+          <button
+            type="button"
+            class="theme-toggle theme-toggle-icon"
+            :aria-label="theme === 'dark' ? '切换到浅色主题' : '切换到深色主题'"
+            @click="toggleTheme"
+          >
+            <i
+              :class="theme === 'dark' ? 'ri-sun-line' : 'ri-moon-line'"
+              aria-hidden="true"
+            ></i>
+          </button>
         </div>
       </header>
 
@@ -272,18 +272,22 @@ const projectCountLabel = computed(() => {
                         :href="project.demoUrl"
                         target="_blank"
                         rel="noreferrer"
-                        class="btn btn-primary"
+                        class="btn btn-primary icon-button"
+                        aria-label="在线预览"
                       >
-                        在线预览
+                        <i class="ri-external-link-line btn-icon" aria-hidden="true"></i>
+                        <span class="btn-label">在线预览</span>
                       </a>
                       <a
                         v-if="project.repoUrl"
                         :href="project.repoUrl"
                         target="_blank"
                         rel="noreferrer"
-                        class="btn btn-ghost"
+                        class="btn btn-ghost icon-button"
+                        aria-label="代码仓库"
                       >
-                        代码仓库
+                        <i class="ri-github-line btn-icon" aria-hidden="true"></i>
+                        <span class="btn-label">代码仓库</span>
                       </a>
                     </div>
                   </div>
@@ -370,42 +374,32 @@ const projectCountLabel = computed(() => {
 
 .theme-toggle {
   border: 0;
-  padding: 0;
-  background: none;
+  padding: 6px;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted-foreground);
   cursor: pointer;
-}
-
-.theme-toggle-track {
-  width: 32px;
-  height: 18px;
-  border-radius: 999px;
-  background-color: var(--muted);
-  border: 1px solid var(--border);
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  padding: 0 2px;
-  box-shadow: var(--shadow-sm);
+  justify-content: center;
   transition:
-    background-color 0.16s ease-out,
-    border-color 0.16s ease-out,
-    box-shadow 0.16s ease-out;
+    color 0.16s ease-out,
+    transform 0.08s ease-out;
 }
 
-.theme-toggle-thumb {
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  background-color: var(--background);
-  box-shadow: 0 1px 2px hsl(0 0% 0% / 0.18);
-  transform: translateX(0);
-  transition:
-    transform 0.16s ease-out,
-    background-color 0.16s ease-out;
+.theme-toggle:hover {
+  color: var(--primary);
+  transform: translateY(-1px);
 }
 
-.theme-toggle-thumb--dark {
-  transform: translateX(12px);
-  background-color: var(--primary);
+.theme-toggle:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--primary) 40%, transparent);
+  outline-offset: 2px;
+}
+
+.theme-toggle-icon i {
+  font-size: 19px;
+  line-height: 1;
 }
 
 .header-links {
@@ -415,28 +409,38 @@ const projectCountLabel = computed(() => {
 }
 
 .header-link {
-  font-size: 13px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background-color: var(--secondary);
-  color: var(--secondary-foreground);
+  font-size: 18px;
+  padding: 4px;
+  border-radius: 0;
+  border: 0;
+  background-color: transparent;
+  color: var(--muted-foreground);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  box-shadow: var(--shadow-sm);
+  justify-content: center;
+  gap: 0;
+  box-shadow: none;
   transition:
-    border-color 0.16s ease-out,
-    background-color 0.16s ease-out,
-    transform 0.08s ease-out,
-    box-shadow 0.12s ease-out;
+    color 0.16s ease-out,
+    transform 0.08s ease-out;
 }
 
 .header-link:hover {
-  border-color: var(--ring);
-  box-shadow: var(--shadow-md);
+  color: var(--primary);
   transform: translateY(-1px);
+}
+
+.header-icon {
+  width: auto;
+  height: auto;
+  padding: 4px;
+  border-radius: 0;
+}
+
+.header-icon i {
+  font-size: 18px;
+  line-height: 1;
 }
 
 .page-main {
@@ -684,13 +688,63 @@ const projectCountLabel = computed(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 0;
   transition:
     border-color 0.16s ease-out,
     background-color 0.16s ease-out,
     color 0.16s ease-out,
     box-shadow 0.16s ease-out,
     transform 0.08s ease-out;
+}
+
+.icon-button {
+  overflow: hidden;
+  position: relative;
+  border-radius: 50%;
+  padding: 8px;
+  min-width: 36px;
+  min-height: 36px;
+  transition:
+    border-radius 0.2s ease,
+    padding 0.2s ease;
+}
+
+.btn-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.btn-label {
+  max-width: 0;
+  opacity: 0;
+  white-space: nowrap;
+  margin-left: 0;
+  transform: translateY(2px);
+  overflow: hidden;
+  transition:
+    max-width 0.28s ease,
+    opacity 0.2s ease,
+    margin-left 0.2s ease,
+    transform 0.2s ease;
+}
+
+.icon-button:hover .btn-label,
+.icon-button:focus-visible .btn-label {
+  max-width: 140px;
+  opacity: 1;
+  margin-left: 6px;
+  transform: translateY(0);
+}
+
+.icon-button:hover,
+.icon-button:focus-visible {
+  border-radius: 30px;
+  padding: 9px 12px;
+}
+
+.icon-button:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--primary) 40%, transparent);
+  outline-offset: 2px;
 }
 
 .btn-primary {
