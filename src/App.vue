@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watchEffect, onMounted } from 'vue'
 import { siteConfig, projectGroups } from './config/projects'
+import LocalSearch from './components/LocalSearch.vue'
 import Logo from './assets/logo.png'
 
 const THEME_KEY = 'flysheep-theme'
@@ -72,6 +73,7 @@ const statusText = (status) => {
 }
 
 const activeStatus = ref('all')
+const isSearchOpen = ref(false)
 
 const filteredGroups = computed(() => {
   return projectGroups
@@ -97,6 +99,22 @@ const projectCountLabel = computed(() => {
   )
   return `${count} 个项目`
 })
+
+const searchItems = computed(() =>
+  projectGroups.flatMap((group) =>
+    (group.projects || []).map((project) => ({
+      ...project,
+      groupId: group.id,
+      groupName: group.name,
+      statusLabel: statusText(project.status),
+    })),
+  ),
+)
+
+const searchShortcutLabel = computed(() => {
+  if (typeof navigator === 'undefined') return 'Ctrl K'
+  return navigator.platform?.toLowerCase().includes('mac') ? '⌘ K' : 'Ctrl K'
+})
 </script>
 
 <template>
@@ -115,6 +133,18 @@ const projectCountLabel = computed(() => {
           </p>
         </div>
         <div class="header-right">
+          <button
+            type="button"
+            class="search-trigger"
+            aria-label="打开搜索"
+            @click="isSearchOpen = true"
+          >
+            <i class="ri-search-line" aria-hidden="true"></i>
+            <span class="search-trigger__label">搜索</span>
+            <span class="search-trigger__shortcut">
+              {{ searchShortcutLabel }}
+            </span>
+          </button>
           <div class="header-links" v-if="siteConfig.links">
             <a
               v-if="siteConfig.links.github"
@@ -137,7 +167,6 @@ const projectCountLabel = computed(() => {
               <i class="ri-article-line" aria-hidden="true"></i>
             </a>
           </div>
-
           <button
             type="button"
             class="theme-toggle theme-toggle-icon"
@@ -298,6 +327,8 @@ const projectCountLabel = computed(() => {
         </section>
       </main>
     </div>
+
+    <LocalSearch v-model:open="isSearchOpen" :projects="searchItems" />
   </div>
 </template>
 
@@ -370,6 +401,53 @@ const projectCountLabel = computed(() => {
   align-items: center;
   gap: 10px;
   margin-left: auto;
+}
+
+.search-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background-color: var(--secondary);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  font-size: 12px;
+  transition:
+    background-color 0.16s ease-out,
+    border-color 0.16s ease-out,
+    color 0.16s ease-out,
+    transform 0.08s ease-out;
+}
+
+.search-trigger i {
+  font-size: 16px;
+}
+
+.search-trigger__label {
+  color: var(--foreground);
+}
+
+.search-trigger__shortcut {
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  color: var(--muted-foreground);
+}
+
+.search-trigger:hover {
+  border-color: var(--ring);
+  color: var(--foreground);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.search-trigger:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--primary) 40%, transparent);
+  outline-offset: 2px;
 }
 
 .theme-toggle {
