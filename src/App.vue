@@ -634,7 +634,32 @@ const searchShortcutLabel = computed(() => {
 
 .group-title {
   margin: 0;
-  font-size: 15px;
+  padding-left: 14px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.group-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 18px;
+  border-radius: 6px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--primary) 75%, transparent),
+    color-mix(in oklch, var(--accent) 70%, transparent)
+  );
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--primary) 35%, transparent);
+  transform: translateY(-50%);
 }
 
 .group-subtitle {
@@ -691,7 +716,9 @@ const searchShortcutLabel = computed(() => {
 
 .project-title {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--card-foreground);
 }
 
 .status-pill {

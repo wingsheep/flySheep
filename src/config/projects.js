@@ -18,7 +18,7 @@ export const projectGroups = [
   {
     id: 'top',
     name: '置顶',
-    description: '置顶一些新颖且且有应用场景的项目',
+    description: '置顶一些新颖且有应用场景的项目',
     projects: [
       {
         id: 'top-1',
