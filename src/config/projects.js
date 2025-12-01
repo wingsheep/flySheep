@@ -16,6 +16,24 @@ export const siteConfig = {
 // 只需要维护这里的分组和项目列表，导航页会自动渲染更新。
 export const projectGroups = [
   {
+    id: 'top',
+    name: '置顶',
+    description: '置顶一些新颖且且有应用场景的项目',
+    projects: [
+      {
+        id: 'top-1',
+        name: '伏羲平台 MCP',
+        description:
+          '最小化 MCP 服务端，封装 HJG/Fuxi 的登录、项目查询、发布及常用运维接口（服务列表/订阅/分支/构建发布查询等）。',
+        techStack: ['Mcp', 'Zod', 'Typescript'],
+        repoUrl: 'http://git.hgj.net/taoxiang.tao/hgj-fuxi-mcp',
+        demoUrl: '',
+        status: 'online', // online | wip | archived
+        highlight: true,
+      },
+    ],
+  },
+  {
     id: 'vibeCoding',
     name: 'AI VIBE CODING',
     description: '和 AI 做结对编程时顺手产出的一些有意思的小玩意儿。',
