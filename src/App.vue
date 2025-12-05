@@ -72,7 +72,14 @@ const statusText = (status) => {
   return map[status] || status
 }
 
+const repoIcon = (url) => (url && url.includes('github.com') ? 'ri-github-line' : 'ri-gitlab-line')
+const repoHost = (url) => {
+  if (!url) return 'unknown'
+  return url.includes('github.com') ? 'github' : 'gitlab'
+}
+
 const activeStatus = ref('all')
+const hostFilter = ref('all') // all | github | gitlab
 const isSearchOpen = ref(false)
 
 const filteredGroups = computed(() => {
@@ -80,8 +87,11 @@ const filteredGroups = computed(() => {
     .map((group) => {
       const projects =
         group.projects?.filter((project) => {
-          if (activeStatus.value === 'all') return true
-          return project.status === activeStatus.value
+          const matchStatus =
+            activeStatus.value === 'all' || project.status === activeStatus.value
+          const matchHost =
+            hostFilter.value === 'all' || repoHost(project.repoUrl) === hostFilter.value
+          return matchStatus && matchHost
         }) ?? []
 
       return {
@@ -232,6 +242,32 @@ const searchShortcutLabel = computed(() => {
                   已归档
                 </button>
               </div>
+              <div class="filters">
+                <button
+                  type="button"
+                  class="filter-pill"
+                  :class="{ 'filter-pill--active': hostFilter === 'all' }"
+                  @click="hostFilter = 'all'"
+                >
+                  全部仓库
+                </button>
+                <button
+                  type="button"
+                  class="filter-pill"
+                  :class="{ 'filter-pill--active': hostFilter === 'github' }"
+                  @click="hostFilter = 'github'"
+                >
+                  GitHub
+                </button>
+                <button
+                  type="button"
+                  class="filter-pill"
+                  :class="{ 'filter-pill--active': hostFilter === 'gitlab' }"
+                  @click="hostFilter = 'gitlab'"
+                >
+                  GitLab
+                </button>
+              </div>
             </div>
           </div>
 
@@ -315,7 +351,7 @@ const searchShortcutLabel = computed(() => {
                         class="btn btn-ghost icon-button"
                         aria-label="代码仓库"
                       >
-                        <i class="ri-github-line btn-icon" aria-hidden="true"></i>
+                        <i :class="`${repoIcon(project.repoUrl)} btn-icon`" aria-hidden="true"></i>
                         <span class="btn-label">代码仓库</span>
                       </a>
                     </div>
@@ -568,6 +604,7 @@ const searchShortcutLabel = computed(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .pill {

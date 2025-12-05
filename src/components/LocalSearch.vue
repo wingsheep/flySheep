@@ -140,6 +140,8 @@ const select = (project) => {
   close()
 }
 
+const repoIcon = (url) => (url && url.includes('github.com') ? 'ri-github-line' : 'ri-gitlab-line')
+
 const onKeydown = (event) => {
   if (!props.open) return
   const total = results.value.length
@@ -257,7 +259,7 @@ onBeforeUnmount(() => {
               <span class="result-group">{{ project.groupName }}</span>
               <span class="result-link-type">
                 <i
-                  :class="project.demoUrl ? 'ri-external-link-line' : 'ri-github-line'"
+                  :class="project.demoUrl ? 'ri-external-link-line' : repoIcon(project.repoUrl)"
                   aria-hidden="true"
                 ></i>
               </span>
