@@ -28,8 +28,19 @@ export const projectGroups = [
         techStack: ['Mcp', 'Zod', 'Typescript'],
         repoUrl: 'http://git.hgj.net/taoxiang.tao/hgj-fuxi-mcp',
         demoUrl: '',
-        status: 'online', // online | wip | archived
-        highlight: true,
+        status: 'wip', // online | wip | archived
+        highlight: false,
+      },
+      {
+        id: 'top-2',
+        name: '海管家 CI CD',
+        description:
+          '海管家项目部署相关脚本导航目录。',
+        techStack: ['Node.js'],
+        repoUrl: 'http://git.hgj.net/taoxiang.tao/hgj-cicd',
+        demoUrl: '',
+        status: 'archived', // online | wip | archived
+        highlight: false,
       },
     ],
   },
@@ -168,7 +179,7 @@ export const projectGroups = [
         techStack: ['Electron', 'Vue'],
         repoUrl: 'https://github.com/wingsheep/ehr-app',
         demoUrl: '',
-        status: 'wip',
+        status: 'archived',
         highlight: false,
       },
       {
@@ -178,7 +189,7 @@ export const projectGroups = [
         techStack: ['Shell', 'Python'],
         repoUrl: 'https://github.com/wingsheep/ops',
         demoUrl: '',
-        status: 'wip',
+        status: 'archived',
         highlight: false,
       },
     ],
