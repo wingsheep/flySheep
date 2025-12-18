@@ -21,6 +21,17 @@ export const projectGroups = [
     description: '置顶一些新颖且有应用场景的项目',
     projects: [
       {
+        id: 'top-3',
+        name: 'Mcp Use Demo',
+        description:
+          'MCP Use + DeepSeek 的完整链路 Demo，包含 MCP Server、MCP Client/Agent、API 层与 Nuxt Web 前端。',
+        techStack: ['MCP Use', 'langchain/openai', 'Zod', 'Typescript', 'Nuxt 4'],
+        repoUrl: 'https://github.com/wingsheep/mcp-use-demo',
+        demoUrl: '',
+        status: 'online', // online | wip | archived
+        highlight: false,
+      },
+      {
         id: 'top-1',
         name: '伏羲平台 MCP',
         description:
