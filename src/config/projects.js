@@ -21,6 +21,17 @@ export const projectGroups = [
     description: '置顶一些新颖且有应用场景的项目',
     projects: [
       {
+        id: 'top-4',
+        name: 'UI自动化测试Demo',
+        description:
+          '可视化录制 + 后台执行的 UI 自动化平台 MVP。',
+        techStack: ['Playwright', 'Node.js', 'Docker', 'Nuxt 4'],
+        repoUrl: 'http://git.hgj.net/taoxiang.tao/ui-test-demo',
+        demoUrl: '',
+        status: 'online', // online | wip | archived
+        highlight: false,
+      },
+      {
         id: 'top-3',
         name: 'Mcp Use Demo',
         description:
