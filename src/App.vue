@@ -1,5 +1,7 @@
 <script setup>
-import { computed, ref, watchEffect, onMounted } from 'vue'
+import { computed, reactive, ref, watchEffect, onMounted } from 'vue'
+import MarkdownIt from 'markdown-it'
+import hljs from 'highlight.js/lib/common'
 import { siteConfig, projectGroups } from './config/projects'
 import LocalSearch from './components/LocalSearch.vue'
 import Logo from './assets/logo.png'
@@ -31,6 +33,7 @@ const initTheme = () => {
 
 onMounted(() => {
   initTheme()
+  loadBuildReadmes()
 
   if (typeof window !== 'undefined') {
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
@@ -77,6 +80,203 @@ const repoHost = (url) => {
   if (!url) return 'unknown'
   return url.includes('github.com') ? 'github' : 'gitlab'
 }
+
+const markdown = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  langPrefix: 'hljs language-',
+  highlight: (code, lang) => {
+    if (lang && hljs.getLanguage(lang)) {
+      return hljs.highlight(code, { language: lang, ignoreIllegals: true }).value
+    }
+    return hljs.highlightAuto(code).value
+  },
+})
+
+const readmeById = reactive({})
+const previewProject = ref(null)
+const hoveredProjectId = ref(null)
+const isPreviewHovered = ref(false)
+const clearPreviewTimer = ref(null)
+
+const getProjectKey = (project) => project?.id || project?.name
+
+const normalizeRepoUrl = (url) => {
+  if (!url) return ''
+  return url
+    .split('#')[0]
+    .replace(/\.git$/, '')
+    .replace(/\/(?:-\/)?tree\/.+$/, '')
+    .replace(/\/(?:-\/)?blob\/.+$/, '')
+    .replace(/\/$/, '')
+}
+
+const extractBranchHint = (url) => {
+  if (!url) return ''
+  const match = url.match(/\/(?:-\/)?(?:tree|blob)\/([^/]+)/)
+  return match ? match[1] : ''
+}
+
+const uniqueList = (list) => [...new Set(list.filter(Boolean))]
+
+const buildReadmeCandidates = (url) => {
+  const normalized = normalizeRepoUrl(url)
+  if (!normalized) return []
+  const branchHint = extractBranchHint(url)
+  const fileCandidates = ['README.md', 'README.MD', 'readme.md', 'README.txt', 'README']
+
+  if (normalized.includes('github.com')) {
+    const match = normalized.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)/)
+    if (!match) return []
+    const owner = match[1]
+    const repo = match[2]
+    const base = `https://raw.githubusercontent.com/${owner}/${repo}`
+    const branches = uniqueList([branchHint, 'HEAD', 'main', 'master'])
+    return branches.flatMap((branch) =>
+      fileCandidates.map((file) => `${base}/${branch}/${file}`),
+    )
+  }
+
+  try {
+    const target = new URL(normalized)
+    const base = `${target.origin}${target.pathname}`
+    const branches = uniqueList([branchHint, 'master', 'main'])
+    return branches.flatMap((branch) =>
+      fileCandidates.map((file) => `${base}/raw/${branch}/${file}`),
+    )
+  } catch {
+    return []
+  }
+}
+
+const setReadmeState = (key, next) => {
+  readmeById[key] = {
+    status: 'idle',
+    html: '',
+    source: '',
+    ...(readmeById[key] || {}),
+    ...next,
+  }
+}
+
+const loadBuildReadmes = async () => {
+  if (typeof window === 'undefined') return
+  try {
+    const response = await fetch('/readmes.json', { cache: 'no-store' })
+    if (!response.ok) return
+    const data = await response.json()
+    Object.entries(data || {}).forEach(([key, entry]) => {
+      if (!entry?.raw) return
+      setReadmeState(key, {
+        status: 'ready',
+        html: markdown.render(entry.raw),
+        source: entry.source || 'build',
+      })
+    })
+  } catch {
+    // Ignore missing build artifacts.
+  }
+}
+
+const loadReadme = async (project) => {
+  const key = getProjectKey(project)
+  if (!key || !project?.repoUrl) return false
+  const candidates = buildReadmeCandidates(project.repoUrl)
+  if (candidates.length === 0) {
+    setReadmeState(key, { status: 'error', html: '', source: '' })
+    return false
+  }
+
+  setReadmeState(key, { status: 'loading', html: '', source: '' })
+
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(candidate)
+      if (!response.ok) continue
+      const text = await response.text()
+      if (!text.trim()) continue
+      setReadmeState(key, {
+        status: 'ready',
+        html: markdown.render(text),
+        source: candidate,
+      })
+      return true
+    } catch {
+      // Skip invalid candidate and continue to next.
+    }
+  }
+
+  setReadmeState(key, { status: 'error', html: '', source: '' })
+  return false
+}
+
+const ensureReadme = async (project) => {
+  const key = getProjectKey(project)
+  if (!key || !project?.repoUrl) return
+  const current = readmeById[key]
+  if (current?.status === 'ready' || current?.status === 'loading' || current?.status === 'error') {
+    return
+  }
+  const ok = await loadReadme(project)
+  if (!ok && getProjectKey(previewProject.value) === key) {
+    previewProject.value = null
+  }
+}
+
+const openPreview = (project) => {
+  if (clearPreviewTimer.value) {
+    clearTimeout(clearPreviewTimer.value)
+    clearPreviewTimer.value = null
+  }
+  const key = getProjectKey(project)
+  hoveredProjectId.value = key
+
+  if (!project?.repoUrl) {
+    previewProject.value = null
+    return
+  }
+  if (readmeById[key]?.status === 'error') {
+    previewProject.value = null
+    return
+  }
+  previewProject.value = project
+  ensureReadme(project)
+}
+
+const scheduleClearPreview = () => {
+  if (clearPreviewTimer.value) clearTimeout(clearPreviewTimer.value)
+  clearPreviewTimer.value = setTimeout(() => {
+    if (!hoveredProjectId.value && !isPreviewHovered.value) {
+      previewProject.value = null
+    }
+  }, 160)
+}
+
+const closePreviewIfIdle = () => {
+  hoveredProjectId.value = null
+  scheduleClearPreview()
+}
+
+const onPanelEnter = () => {
+  isPreviewHovered.value = true
+  if (clearPreviewTimer.value) {
+    clearTimeout(clearPreviewTimer.value)
+    clearPreviewTimer.value = null
+  }
+}
+
+const onPanelLeave = () => {
+  isPreviewHovered.value = false
+  if (!hoveredProjectId.value) {
+    scheduleClearPreview()
+  }
+}
+
+const activeReadme = computed(() => {
+  const key = getProjectKey(previewProject.value)
+  return key ? readmeById[key] : null
+})
 
 const activeStatus = ref('all')
 const hostFilter = ref('all') // all | github | gitlab
@@ -297,6 +497,8 @@ const searchShortcutLabel = computed(() => {
                   :key="project.id || project.name"
                   class="project-card"
                   :class="{ 'project-card--highlight': project.highlight }"
+                  @mouseenter="openPreview(project)"
+                  @mouseleave="closePreviewIfIdle"
                 >
                   <div class="project-main">
                     <div class="project-title-row">
@@ -351,15 +553,56 @@ const searchShortcutLabel = computed(() => {
                         class="btn btn-ghost icon-button"
                         aria-label="代码仓库"
                       >
-                        <i :class="`${repoIcon(project.repoUrl)} btn-icon`" aria-hidden="true"></i>
+                        <i
+                          :class="`${repoIcon(project.repoUrl)} btn-icon`"
+                          aria-hidden="true"
+                        ></i>
                         <span class="btn-label">代码仓库</span>
                       </a>
                     </div>
                   </div>
+
                 </article>
               </div>
             </section>
           </div>
+
+          <aside
+            v-if="previewProject && activeReadme?.status !== 'error'"
+            class="readme-panel-wrap"
+            @mouseenter="onPanelEnter"
+            @mouseleave="onPanelLeave"
+          >
+            <div class="readme-panel">
+              <div class="readme-panel__header">
+                <div class="readme-title">
+                  <span class="readme-title__label">README</span>
+                  <span class="readme-title__name">
+                    {{ previewProject.name }}
+                  </span>
+                </div>
+                <a
+                  v-if="previewProject.repoUrl"
+                  :href="previewProject.repoUrl"
+                  target="_blank"
+                  rel="noreferrer"
+                  class="readme-link"
+                >
+                  <i :class="repoIcon(previewProject.repoUrl)" aria-hidden="true"></i>
+                  <span>仓库</span>
+                </a>
+              </div>
+              <div class="readme-panel__body">
+                <div
+                  v-if="!activeReadme || activeReadme.status === 'loading'"
+                  class="readme-loading"
+                >
+                  README 加载中…
+                </div>
+                <div v-else class="readme-content" v-html="activeReadme.html"></div>
+              </div>
+            </div>
+          </aside>
         </section>
       </main>
     </div>
@@ -580,6 +823,219 @@ const searchShortcutLabel = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  position: relative;
+}
+
+.readme-panel-wrap {
+  position: fixed;
+  top: clamp(140px, 18vh, 220px);
+  right: 10px;
+  z-index: 200;
+}
+
+.readme-panel {
+  width: clamp(320px, 30vw, 480px);
+  height: clamp(280px, 60vh, 640px);
+  min-height: 240px;
+  max-height: 80vh;
+  max-width: 520px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--shadow-2xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  resize: both;
+}
+
+.readme-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background-color: color-mix(in oklch, var(--popover) 70%, var(--secondary));
+}
+
+.readme-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.readme-title__label {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  letter-spacing: 0.06em;
+}
+
+.readme-title__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--popover-foreground);
+}
+
+.readme-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--primary);
+  padding: 6px 8px;
+  border-radius: 999px;
+  background-color: color-mix(in oklch, var(--primary) 12%, transparent);
+}
+
+.readme-link:hover {
+  background-color: color-mix(in oklch, var(--primary) 18%, transparent);
+}
+
+.readme-link i {
+  font-size: 15px;
+}
+
+.readme-panel__body {
+  padding: 10px 12px 14px;
+  overflow: auto;
+  flex: 1;
+}
+
+.readme-loading {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+  text-align: center;
+}
+
+.readme-content {
+  font-size: 12px;
+  color: var(--popover-foreground);
+  line-height: 1.6;
+}
+
+:deep(.readme-content h1) {
+  font-size: 16px;
+  margin: 12px 0 6px;
+}
+
+:deep(.readme-content h2) {
+  font-size: 14px;
+  margin: 12px 0 6px;
+}
+
+:deep(.readme-content h3) {
+  font-size: 13px;
+  margin: 10px 0 6px;
+}
+
+:deep(.readme-content p) {
+  margin: 6px 0;
+  color: var(--muted-foreground);
+}
+
+:deep(.readme-content a) {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+:deep(.readme-content ul),
+:deep(.readme-content ol) {
+  padding-left: 18px;
+  margin: 6px 0;
+}
+
+:deep(.readme-content li) {
+  margin: 4px 0;
+}
+
+:deep(.readme-content blockquote) {
+  margin: 6px 0;
+  padding-left: 10px;
+  border-left: 3px solid var(--border);
+  color: var(--muted-foreground);
+}
+
+:deep(.readme-content code) {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+:deep(.readme-content pre) {
+  background-color: var(--muted);
+  padding: 10px;
+  border-radius: 10px;
+  overflow: auto;
+  border: 1px solid var(--border);
+}
+
+:deep(.readme-content pre code) {
+  background: transparent;
+  padding: 0;
+}
+
+:deep(.readme-content code.hljs) {
+  display: block;
+  color: var(--foreground);
+}
+
+:deep(.readme-content .hljs-comment),
+:deep(.readme-content .hljs-quote) {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+:deep(.readme-content .hljs-keyword),
+:deep(.readme-content .hljs-selector-tag),
+:deep(.readme-content .hljs-literal),
+:deep(.readme-content .hljs-name),
+:deep(.readme-content .hljs-strong) {
+  color: color-mix(in oklch, var(--primary) 85%, var(--foreground));
+}
+
+:deep(.readme-content .hljs-string),
+:deep(.readme-content .hljs-title),
+:deep(.readme-content .hljs-section),
+:deep(.readme-content .hljs-type),
+:deep(.readme-content .hljs-attribute),
+:deep(.readme-content .hljs-symbol),
+:deep(.readme-content .hljs-bullet) {
+  color: color-mix(in oklch, var(--accent-foreground) 80%, var(--foreground));
+}
+
+:deep(.readme-content .hljs-number),
+:deep(.readme-content .hljs-tag),
+:deep(.readme-content .hljs-attr),
+:deep(.readme-content .hljs-params) {
+  color: color-mix(in oklch, var(--ring) 70%, var(--foreground));
+}
+
+:deep(.readme-content img) {
+  max-width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+
+:deep(.readme-content table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+:deep(.readme-content th),
+:deep(.readme-content td) {
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  text-align: left;
 }
 
 .projects-header {
@@ -654,6 +1110,8 @@ const searchShortcutLabel = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  flex: 1;
+  min-width: 0;
 }
 
 .group {
@@ -720,6 +1178,7 @@ const searchShortcutLabel = computed(() => {
   flex-direction: column;
   gap: 10px;
   box-shadow: var(--shadow-xs);
+  position: relative;
   transition:
     border-color 0.16s ease-out,
     box-shadow 0.16s ease-out,
@@ -929,6 +1388,24 @@ const searchShortcutLabel = computed(() => {
   .projects-toolbar {
     flex-direction: column;
     align-items: flex-end;
+  }
+
+  .readme-panel {
+    position: static;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    margin-top: 12px;
+    resize: none;
+  }
+
+  .readme-panel-wrap {
+    position: static;
+  }
+
+  .readme-panel__body {
+    max-height: 60vh;
   }
 
   .filters {
