@@ -153,7 +153,7 @@ export const projectGroups = [
         description: '使用Tauri v2 重构的海外舱单语言包同步的跨平台小应用。',
         techStack: ['Tauri', 'Vue'],
         repoUrl: 'http://git.hgj.net/taoxiang.tao/sync-locale-app_by_tauri-v2',
-        demoUrl: 'http://git.hgj.net/taoxiang.tao/sync-locale-app_by_tauri-v2/tree/master/release',
+        demoUrl: '',
         status: 'online', // online | wip | archived
         highlight: false,
       },

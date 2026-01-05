@@ -213,7 +213,7 @@ const loadReadme = async (project) => {
 
 const ensureReadme = async (project) => {
   const key = getProjectKey(project)
-  if (!key || !project?.repoUrl) return
+  if (!key || !project?.repoUrl || project?.demoUrl) return
   const current = readmeById[key]
   if (current?.status === 'ready' || current?.status === 'loading' || current?.status === 'error') {
     return
@@ -232,11 +232,11 @@ const openPreview = (project) => {
   const key = getProjectKey(project)
   hoveredProjectId.value = key
 
-  if (!project?.repoUrl) {
+  if (!project?.repoUrl && !project?.demoUrl) {
     previewProject.value = null
     return
   }
-  if (readmeById[key]?.status === 'error') {
+  if (!project?.demoUrl && readmeById[key]?.status === 'error') {
     previewProject.value = null
     return
   }
@@ -568,7 +568,7 @@ const searchShortcutLabel = computed(() => {
           </div>
 
           <aside
-            v-if="previewProject && activeReadme?.status !== 'error'"
+            v-if="previewProject && (previewProject.demoUrl || activeReadme?.status !== 'error')"
             class="readme-panel-wrap"
             @mouseenter="onPanelEnter"
             @mouseleave="onPanelLeave"
@@ -576,7 +576,9 @@ const searchShortcutLabel = computed(() => {
             <div class="readme-panel">
               <div class="readme-panel__header">
                 <div class="readme-title">
-                  <span class="readme-title__label">README</span>
+                  <span class="readme-title__label">
+                    {{ previewProject.demoUrl ? '预览' : 'README' }}
+                  </span>
                   <span class="readme-title__name">
                     {{ previewProject.name }}
                   </span>
@@ -592,14 +594,27 @@ const searchShortcutLabel = computed(() => {
                   <span>仓库</span>
                 </a>
               </div>
-              <div class="readme-panel__body">
-                <div
-                  v-if="!activeReadme || activeReadme.status === 'loading'"
-                  class="readme-loading"
-                >
-                  README 加载中…
+              <div
+                class="readme-panel__body"
+                :class="{ 'readme-panel__body--preview': previewProject.demoUrl }"
+              >
+                <div v-if="previewProject.demoUrl" class="readme-preview">
+                  <iframe
+                    :src="previewProject.demoUrl"
+                    :title="`${previewProject.name} 预览`"
+                    class="readme-preview__frame"
+                    loading="lazy"
+                  ></iframe>
                 </div>
-                <div v-else class="readme-content" v-html="activeReadme.html"></div>
+                <template v-else>
+                  <div
+                    v-if="!activeReadme || activeReadme.status === 'loading'"
+                    class="readme-loading"
+                  >
+                    README 加载中…
+                  </div>
+                  <div v-else class="readme-content" v-html="activeReadme.html"></div>
+                </template>
               </div>
             </div>
           </aside>
@@ -901,6 +916,24 @@ const searchShortcutLabel = computed(() => {
   padding: 10px 12px 14px;
   overflow: auto;
   flex: 1;
+}
+
+.readme-panel__body--preview {
+  padding: 0;
+  overflow: hidden;
+}
+
+.readme-preview {
+  width: 100%;
+  height: 100%;
+  background-color: var(--background);
+}
+
+.readme-preview__frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
 }
 
 .readme-loading {
