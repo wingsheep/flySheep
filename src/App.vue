@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive, ref, watchEffect, onMounted } from 'vue'
+import { computed, reactive, ref, watchEffect, watch, onMounted } from 'vue'
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js/lib/common'
 import { siteConfig, projectGroups } from './config/projects'
@@ -281,6 +281,25 @@ const activeReadme = computed(() => {
 const activeStatus = ref('all')
 const hostFilter = ref('all') // all | github | gitlab
 const isSearchOpen = ref(false)
+const isPreviewLoading = ref(false)
+
+const onPreviewLoaded = () => {
+  isPreviewLoading.value = false
+}
+
+watch(
+  () => previewProject.value?.demoUrl,
+  (next, prev) => {
+    if (next && next !== prev) {
+      isPreviewLoading.value = true
+      return
+    }
+    if (!next) {
+      isPreviewLoading.value = false
+    }
+  },
+  { immediate: true },
+)
 
 const filteredGroups = computed(() => {
   return projectGroups
@@ -599,11 +618,16 @@ const searchShortcutLabel = computed(() => {
                 :class="{ 'readme-panel__body--preview': previewProject.demoUrl }"
               >
                 <div v-if="previewProject.demoUrl" class="readme-preview">
+                  <div v-if="isPreviewLoading" class="readme-preview__loading">
+                    <span class="readme-preview__spinner" aria-hidden="true"></span>
+                    <span>预览加载中…</span>
+                  </div>
                   <iframe
                     :src="previewProject.demoUrl"
                     :title="`${previewProject.name} 预览`"
                     class="readme-preview__frame"
                     loading="lazy"
+                    @load="onPreviewLoaded"
                   ></iframe>
                 </div>
                 <template v-else>
@@ -927,6 +951,8 @@ const searchShortcutLabel = computed(() => {
   width: 100%;
   height: 100%;
   background-color: var(--background);
+  position: relative;
+  overflow: hidden;
 }
 
 .readme-preview__frame {
@@ -934,6 +960,39 @@ const searchShortcutLabel = computed(() => {
   height: 100%;
   border: 0;
   display: block;
+}
+
+.readme-preview__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  background: linear-gradient(
+    120deg,
+    color-mix(in oklch, var(--muted) 85%, transparent),
+    color-mix(in oklch, var(--secondary) 90%, transparent)
+  );
+  border: 1px dashed var(--border);
+  z-index: 1;
+}
+
+.readme-preview__spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in oklch, var(--muted-foreground) 35%, transparent);
+  border-top-color: var(--primary);
+  animation: preview-spin 0.8s linear infinite;
+}
+
+@keyframes preview-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .readme-loading {
