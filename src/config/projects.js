@@ -123,9 +123,27 @@ export const projectGroups = [
     ],
   },
   {
-    id: 'personal-tools',
-    name: '个人小工具',
-    description: '日常开发和工作中顺手写的一些提升效率的小工具集合。',
+    id: 'vscode-plugins',
+    name: 'VS Code 插件',
+    description: '提升编码体验的 VS Code 扩展。',
+    projects: [
+      {
+        id: 'tools-10',
+        name: 'Cosbrowser Autocomplete',
+        description:
+          '一个 VS Code 插件，编写代码时智能补全腾讯云 COS 里的文件路径，支持 CDN 域名替换和图片预览。',
+        techStack: ['VS Code', 'TypeScript'],
+        repoUrl: 'https://github.com/wingsheep/cosbrowser-autocomplete',
+        demoUrl: '',
+        status: 'online', // online | wip | archived
+        highlight: false,
+      },
+    ],
+  },
+  {
+    id: 'raycast-plugins',
+    name: 'Raycast 插件',
+    description: '使用 Raycast 提升生产力的效率工具。',
     projects: [
       {
         id: 'tools-1',
@@ -148,6 +166,23 @@ export const projectGroups = [
         highlight: false,
       },
       {
+        id: 'tools-5',
+        name: 'CodeVar',
+        description: '一个基于有道翻译 API 的 Raycast 扩展，用来辅助生成代码中的变量命名。',
+        techStack: ['React', 'TypeScript'],
+        repoUrl: 'http://git.hgj.net/taoxiang.tao/code-var',
+        demoUrl: '',
+        status: 'online', // online | wip | archived
+        highlight: false,
+      },
+    ],
+  },
+  {
+    id: 'desktop-apps',
+    name: '桌面端 APP',
+    description: '独立运行的桌面应用程序。',
+    projects: [
+      {
         id: 'tools-9',
         name: 'Sync GitLab Locale (Tauri v2)',
         description: '使用Tauri v2 重构的海外舱单语言包同步的跨平台小应用。',
@@ -167,16 +202,13 @@ export const projectGroups = [
         status: 'online', // online | wip | archived
         highlight: false,
       },
-      {
-        id: 'tools-5',
-        name: 'CodeVar',
-        description: '一个基于有道翻译 API 的 Raycast 扩展，用来辅助生成代码中的变量命名。',
-        techStack: ['React', 'TypeScript'],
-        repoUrl: 'http://git.hgj.net/taoxiang.tao/code-var',
-        demoUrl: '',
-        status: 'online', // online | wip | archived
-        highlight: false,
-      },
+    ],
+  },
+  {
+    id: 'browser-extensions',
+    name: '浏览器插件',
+    description: '增强浏览器功能的插件与脚本。',
+    projects: [
       {
         id: 'tools-2',
         name: 'Tampermonkey Script',
