@@ -46,7 +46,7 @@ export const projectGroups = [
         id: 'top-1',
         name: '伏羲平台 MCP',
         description:
-          '最小化 MCP 服务端，封装 HJG/Fuxi 的登录、项目查询、发布及常用运维接口（服务列表/订阅/分支/构建发布查询等）。',
+          '封装海管家/伏羲平台的登录、项目查询、发布、消息通知及常用运维接口，同时支持 MCP 服务端 和 CLI 命令行 两种使用方式 以及提供了 AI Agent 技能与工作流调用。',
         techStack: ['Mcp', 'Zod', 'Typescript'],
         repoUrl: 'http://git.hgj.net/taoxiang.tao/hgj-fuxi-mcp',
         demoUrl: '',
