@@ -33,7 +33,7 @@ export const projectGroups = [
       },
       {
         id: 'pj-cli',
-        name: 'pj-cli',
+        name: 'PJ-CLI',
         description: '一款终端项目快速跳转工具。通过为项目配置别名，支持使用别名、拼音（全拼/首字母缩写）或路径关键词极速 cd 到目标目录。',
         techStack: ['Node.js', 'TypeScript', 'CLI'],
         repoUrl: 'http://git.hgj.net/taoxiang.tao/pj-cli',
