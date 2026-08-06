@@ -21,6 +21,16 @@ export const projectGroups = [
     description: '近期最活跃、最值得展示的核心项目',
     projects: [
       {
+        id: 'tapd-cli',
+        name: 'TAPD CLI',
+        description: '用于选择 TAPD 需求、任务或缺陷，并将官方源码关键字复制到系统剪贴板，同时支持待办、搜索和单据详情查询。',
+        techStack: ['Node.js', 'TypeScript', 'CLI'],
+        repoUrl: 'http://git.hgj.net/taoxiang.tao/tapd',
+        demoUrl: '',
+        status: 'online',
+        highlight: true,
+      },
+      {
         id: 'pj-cli',
         name: 'pj-cli',
         description: '一款终端项目快速跳转工具。通过为项目配置别名，支持使用别名、拼音（全拼/首字母缩写）或路径关键词极速 cd 到目标目录。',
@@ -151,16 +161,6 @@ export const projectGroups = [
     name: '💻 桌面与命令行',
     description: '独立运行的桌面端程序与终端 CLI 工具。',
     projects: [
-      {
-        id: 'tapd-cli',
-        name: 'TAPD CLI',
-        description: '用于选择 TAPD 需求、任务或缺陷，并将官方源码关键字复制到系统剪贴板，同时支持待办、搜索和单据详情查询。',
-        techStack: ['Node.js', 'TypeScript', 'CLI'],
-        repoUrl: 'http://git.hgj.net/taoxiang.tao/tapd',
-        demoUrl: '',
-        status: 'online',
-        highlight: false,
-      },
       {
         id: 'sync-locale-tauri',
         name: 'Sync GitLab Locale (Tauri v2)',
