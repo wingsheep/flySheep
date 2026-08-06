@@ -152,6 +152,16 @@ export const projectGroups = [
     description: '独立运行的桌面端程序与终端 CLI 工具。',
     projects: [
       {
+        id: 'tapd-cli',
+        name: 'TAPD CLI',
+        description: '用于选择 TAPD 需求、任务或缺陷，并将官方源码关键字复制到系统剪贴板，同时支持待办、搜索和单据详情查询。',
+        techStack: ['Node.js', 'TypeScript', 'CLI'],
+        repoUrl: 'http://git.hgj.net/taoxiang.tao/tapd',
+        demoUrl: '',
+        status: 'online',
+        highlight: false,
+      },
+      {
         id: 'sync-locale-tauri',
         name: 'Sync GitLab Locale (Tauri v2)',
         description: '使用 Tauri v2 重构的海外舱单语言包同步跨平台桌面应用。',
