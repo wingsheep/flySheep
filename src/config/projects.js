@@ -29,7 +29,7 @@ export const projectGroups = [
         repoUrl: 'http://git.hgj.net/taoxiang.tao/tapd',
         demoUrl: '',
         status: 'online',
-        highlight: true,
+        highlight: false,
       },
       {
         id: 'pj-cli',
@@ -39,7 +39,7 @@ export const projectGroups = [
         repoUrl: 'http://git.hgj.net/taoxiang.tao/pj-cli',
         demoUrl: '',
         status: 'online',
-        highlight: true,
+        highlight: false,
       },
       {
         id: 'ehr-app',
