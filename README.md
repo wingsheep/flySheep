@@ -35,6 +35,7 @@
     - `name`：项目名称。
     - `description`：一句话说明。
     - `techStack`：技术栈数组（如 `['Vue 3', 'Vite']`）。
+    - `badge`：项目标签（如 `'NEW'`，可选）。
     - `repoUrl`：代码仓库链接。
     - `demoUrl`：在线预览地址（可为空字符串）。
     - `status`：项目状态：`'online' | 'wip' | 'archived'`。

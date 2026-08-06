@@ -25,6 +25,7 @@ export const projectGroups = [
         name: 'TAPD CLI',
         description: '用于选择 TAPD 需求、任务或缺陷，并将官方源码关键字复制到系统剪贴板，同时支持待办、搜索和单据详情查询。',
         techStack: ['Node.js', 'TypeScript', 'CLI'],
+        badge: 'NEW',
         repoUrl: 'http://git.hgj.net/taoxiang.tao/tapd',
         demoUrl: '',
         status: 'online',

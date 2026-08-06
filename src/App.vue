@@ -521,9 +521,18 @@ const searchShortcutLabel = computed(() => {
                 >
                   <div class="project-main">
                     <div class="project-title-row">
-                      <h4 class="project-title">
-                        {{ project.name }}
-                      </h4>
+                      <div class="project-title-group">
+                        <h4 class="project-title">
+                          {{ project.name }}
+                        </h4>
+                        <span
+                          v-if="project.badge"
+                          class="project-badge"
+                          :aria-label="`项目标签：${project.badge}`"
+                        >
+                          {{ project.badge }}
+                        </span>
+                      </div>
                       <span
                         v-if="project.status"
                         class="status-pill"
@@ -1302,6 +1311,14 @@ const searchShortcutLabel = computed(() => {
   gap: 10px;
 }
 
+.project-title-group {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .project-title {
   margin: 0;
   font-size: 13px;
@@ -1309,7 +1326,20 @@ const searchShortcutLabel = computed(() => {
   color: var(--card-foreground);
 }
 
+.project-badge {
+  flex: none;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background-color: oklch(0.5 0.14 145);
+  color: oklch(1 0 0);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
 .status-pill {
+  flex: none;
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 999px;
